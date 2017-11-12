@@ -157,8 +157,36 @@ class DataMapObject:
         :param mapping:
         :return dict:
         """
-        # TODO
-        return {}
+        data = {}
+
+        for code, converter in mapping.items():
+            try:
+                value = self.get(code)
+            except KeyError:
+                continue
+
+            keys = converter.service_attribute.split('.')
+            self.set_date_value(data, keys, value)
+
+        return data
+
+    def set_date_value(self, data, keys, value):
+        """
+        Set nested data value
+
+        :param dict data:
+        :param list keys:
+        :param value:
+        """
+        key = keys[0]
+        keys = keys[1:]
+
+        if not keys:
+            data[key] = value
+        else:
+            if key not in data:
+                data[key] = {}
+            self.set_date_value(data[key], keys, value)
 
 
 class Enhancer:
