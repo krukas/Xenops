@@ -11,7 +11,9 @@ Welcome to Xnenops documentation!
    :caption: Contents:
    
    01-introduction
-   02-installation
+   02-project
+   03-service
+   04-api
 
 
 

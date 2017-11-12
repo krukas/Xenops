@@ -3,6 +3,10 @@
 #
 # xenops documentation build configuration file, created by
 # sphinx-quickstart on Fri Oct  6 11:15:27 2017.
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 # -- General configuration ------------------------------------------------
 # Add any Sphinx extension module names here, as strings. They can be
@@ -10,7 +14,8 @@
 # ones.
 extensions = [
 	'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
