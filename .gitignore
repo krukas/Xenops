@@ -2,6 +2,7 @@ __pycache__/
 env/
 *.py[cod]
 .coverage
+htmlcov
 
 docs/_build/
 build/
