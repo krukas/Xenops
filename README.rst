@@ -19,6 +19,7 @@ Xenops
 
 Xenops is a simple program to sync data like (customers/products) between different systems.
 
+`Documentation`_
 
 Installation
 ============
@@ -31,3 +32,4 @@ Create new project
 For creating a new project, read the documentation.
 
 
+.. _Documentation: http://xenops.readthedocs.io/en/latest/index.html
