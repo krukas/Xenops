@@ -17,6 +17,14 @@ class TestConverter(unittest.TestCase):
 
         self.assertEquals(att.import_attribute(data), 'ean-123')
 
+    def test_attribute_no_data(self):
+        att = Attribute(
+            attribute='qty',
+            service_attribute='stock.level'
+        )
+        with self.assertRaises(KeyError):
+            att.import_attribute({})
+
     def test_attribute_nested(self):
         data = {
             'stock': {
@@ -38,6 +46,14 @@ class TestConverter(unittest.TestCase):
         )
         with self.assertRaises(KeyError):
             att.import_attribute({})
+
+    def test_attribute_representation(self):
+        att = Attribute(
+            attribute='stock',
+            service_attribute='stock.level'
+        )
+
+        self.assertEquals(str(att), 'Attribute: {attribute: stock,  service_attribute: stock.level}')
 
     def test_convert_to_mapping(self):
         from_mapping = {

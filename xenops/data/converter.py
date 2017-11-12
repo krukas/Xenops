@@ -47,8 +47,11 @@ class BaseConverter:
             if key not in data:
                 raise KeyError()
             return data.get(key)
+
         if key in data:
             return self.get_import_value(keys, data.get(key))
+
+        raise KeyError()
 
     def export_attribute(self, data_object):
         """

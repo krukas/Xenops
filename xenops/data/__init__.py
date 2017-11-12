@@ -161,7 +161,7 @@ class DataMapObject:
 
         for code, converter in mapping.items():
             try:
-                value = self.get(code)
+                value = converter.export_attribute(self)
             except KeyError:
                 continue
 
