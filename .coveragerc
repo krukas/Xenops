@@ -1,7 +1,6 @@
 [run]
 branch = True
 source = xenops
-include = *
 
 [report]
 exclude_lines =
