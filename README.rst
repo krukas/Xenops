@@ -2,7 +2,8 @@
     :target: https://travis-ci.org/krukas/Xenops
 
 .. image:: https://readthedocs.org/projects/xenops/badge/?version=latest
-    :target: http://xenops.readthedocs.io/en/latest
+    :target: http://xenops.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. image:: https://codecov.io/gh/krukas/Xenops/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/krukas/Xenops
