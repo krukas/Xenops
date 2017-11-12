@@ -1,7 +1,7 @@
 import unittest
 
 from xenops.data import DataMapObject
-from xenops.data.converter import Attribute
+from xenops.data.converter import Attribute, Mapper
 
 
 class TestConverter(unittest.TestCase):
@@ -94,3 +94,18 @@ class TestConverter(unittest.TestCase):
                 'level': 10
             }
         })
+
+    def test_mapper(self):
+        data = {
+            'gender': 2,
+        }
+
+        att = Mapper(
+            attribute='gender',
+            service_attribute='gender',
+            mapping={
+                'f': 2,
+            }
+        )
+
+        self.assertEquals(att.import_attribute(data), 'f')

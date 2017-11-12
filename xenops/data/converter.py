@@ -8,7 +8,24 @@ xenops.data.converter
 
 
 class BaseConverter:
-    """Base converter"""
+    """
+    Base converter
+
+    Service attribute can lookup and export nested data like:
+
+    .. code-block:: python
+
+        # Service raw data
+        {
+            'stock': {
+                'level': 10
+            }
+        }
+
+        # Mapping
+        service_attribute = 'stock.level'
+
+    """
 
     def __init__(self, attribute, service_attribute):
         """
@@ -79,3 +96,74 @@ class Attribute(BaseConverter):
     """Default attribute converter"""
 
     pass
+
+
+class Mapper(BaseConverter):
+    """
+    Mapper attribute converter can be used to convert values to same base value example for gender:
+
+    .. code-block:: python
+
+        # Mapping for some erp service
+        {
+            'm': 1,
+            'f': 2,
+        }
+
+        # Mapping for some e-commerce service
+        {
+            'm': 'Male',
+            'f': 'Female',
+        }
+    """
+
+    def __init__(self, attribute, service_attribute, mapping, use_default=False, import_default=None,
+                 export_default=None):
+        """
+        Init Mapper
+
+        :param attribute:
+        :param service_attribute:
+        :param mapping:
+        :param default:
+        """
+        super().__init__(attribute, service_attribute)
+        self.export_mapping = mapping
+        self.import_mapping = {value: key for key, value in mapping.items()}
+        self.use_default = use_default
+        self.import_default = import_default
+        self.export_default = export_default
+
+    def import_attribute(self, data):
+        """
+        Get data from super and map value with mapping
+
+        :param dict data:
+        :return:
+        """
+        value = super().import_attribute(data)
+
+        if value in self.import_mapping:
+            return self.import_mapping[value]
+
+        if self.use_default:
+            return self.import_default
+
+        raise KeyError()
+
+    def export_attribute(self, data_object):
+        """
+        Get data from super and map value with mapping
+
+        :param data_object:
+        :return:
+        """
+        value = super().export_attribute(data_object)
+
+        if value in self.export_mapping:
+            return self.export_mapping[value]
+
+        if self.use_default:
+            return self.export_default
+
+        raise KeyError()
