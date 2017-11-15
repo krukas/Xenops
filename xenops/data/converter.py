@@ -5,6 +5,7 @@ xenops.data.converter
 :copyright: 2017 by Maikel Martens
 :license: GPLv3
 """
+from datetime import datetime
 
 
 class BaseConverter:
@@ -167,3 +168,50 @@ class Mapper(BaseConverter):
             return self.export_default
 
         raise KeyError()
+
+
+class DateTime(BaseConverter):
+    """
+    Convert string to Datetime object uses the C standard format:
+
+    https://docs.python.org/3.5/library/datetime.html#strftime-strptime-behavior
+    """
+
+    def __init__(self, attribute, service_attribute, date_format):
+        """
+        Init DateTime
+
+        :param str attribute:
+        :param str service_attribute:
+        :param str date_format:
+        """
+        super().__init__(attribute, service_attribute)
+        self.date_format = date_format
+
+    def import_attribute(self, data):
+        """
+        Get data from super and convert it to datetime.datetime
+
+        :param dict data:
+        :return datetime.datetime:
+        """
+        value = super().import_attribute(data)
+
+        try:
+            return datetime.strptime(value, self.date_format)
+        except Exception:
+            return None
+
+    def export_attribute(self, data_object):
+        """
+        Get data from super and convert datetime.datetime to given formatted string
+
+        :param data_object:
+        :return:
+        """
+        value = super().export_attribute(data_object)
+
+        try:
+            return value.strftime(self.date_format)
+        except Exception:
+            return None
