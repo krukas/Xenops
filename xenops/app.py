@@ -33,6 +33,7 @@ class Application:
         if settings.IS_PROJECT:
             logger.debug("Loading project settings")
             self.load_project_types()
+            self.load_project_services()
             self.load_project_connectors()
 
     def load_services(self):
@@ -50,6 +51,12 @@ class Application:
             logger.debug("Registering ({}) service".format(entry_point))
             if not ServiceFactory.register(config):
                 logger.error('Service ({}) could not be registered!'.format(entry_point))
+
+    def load_project_services(self):
+        """Load project services"""
+        for code, config in settings.get('TYPES', {}).items():
+            if not ServiceFactory.register(config):
+                logger.error('Service ({}) could not be registered!'.format(code))
 
     def load_project_types(self):
         """Load project types"""
