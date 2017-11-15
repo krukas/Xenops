@@ -30,7 +30,7 @@ class InvalidCode(Exception):
 class Connector:
     """Connector"""
 
-    def __init__(self, app, code, service, verbose_name, service_config=None, mapping=None, triggers=None,
+    def __init__(self, app, code, service, verbose_name=None, service_config=None, mapping=None, triggers=None,
                  enhancers=None, processes=None):
         """
         Init Connector
@@ -83,9 +83,13 @@ class Connector:
         enhancer_configs = self.get_enhancers_config(service_type.datatype.code)
         process_configs = self.get_processes_config(service_type.datatype.code)
 
-        # TODO: Save and load last trigger time, json file in project
         # TODO: Lock trigger if trigger is already running
-        for object_data in service_type.trigger(TriggerRequest({}, datetime.datetime.now())):
+        trigger_request = TriggerRequest(
+            service_config={},
+            trigger_config={},
+            last_run=datetime.datetime.now()  # TODO: get value from DB
+        )
+        for object_data in service_type.trigger(trigger_request):
             enhancers = []
             for enhancer_config in enhancer_configs:
                 enhancers.append(Enhancer(
@@ -95,8 +99,8 @@ class Connector:
                 ))
 
             data = DataMapObject(
+                connector=self,
                 datatype=service_type.datatype,
-                mapping=self.mapping.get(service_type.datatype.code, {}),
                 enhancers=enhancers,
                 data=object_data
             )
@@ -114,8 +118,8 @@ class Connector:
                     object_id = process_config['connector'].service.types.get(service_type.datatype.code).process(
                         ProcessRequest(
                             connector=process_config['connector'],
-                            config={},
-                            data_object=data
+                            process_config={},
+                            data_objects=[data]
                         ))
                     logger.info(' - Object id for ({}) is {}'.format(data, object_id))
                 except Exception as e:
@@ -125,23 +129,24 @@ class Connector:
                         str(e)
                     ))
 
-    def get(self, type_code, object_id):
+    def get(self, datatype, object_id, generic_id=None):
         """
         Get data from service for give type and id
 
-        :param str type_code:
+        :param datatype:
+        :param str generic_id:
         :param str object_id:
         :return:
         """
-        service_type = self.service.types.get(type_code)
+        service_type = self.service.types.get(datatype.code)
         if not service_type:
             raise Exception('There is no service type for given type code')
 
         # TODO: add id and generic_id to mapping type config
-        object_data = service_type.get(GetRequest(object_id, generic_id='stub'))
+        object_data = service_type.get(GetRequest(service_config={}, object_id=object_id, generic_id=generic_id))
 
         enhancers = []
-        for enhancer_config in self.get_enhancers_config(type_code):
+        for enhancer_config in self.get_enhancers_config(datatype.code):
             enhancers.append(Enhancer(
                 connector=enhancer_config['connector'],
                 mapping=enhancer_config['mapping'],
@@ -149,8 +154,8 @@ class Connector:
             ))
 
         return DataMapObject(
+            connector=self,
             datatype=service_type.datatype,
-            mapping=self.mapping.get(service_type.datatype.code, {}),
             enhancers=[],  # todo add enhancers
             data=object_data
         )
@@ -191,6 +196,15 @@ class Connector:
                         'attributes': process_config.get('attributes')
                     })
         return configs
+
+    def get_mapping(self, datatype):
+        """
+        Get mapping for datatype
+
+        :param datatype:
+        :return:
+        """
+        return self.mapping.get(datatype.code, {})
 
 
 class ConnectorConfig:

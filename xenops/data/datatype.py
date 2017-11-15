@@ -19,7 +19,7 @@ class DataTypeFactory:
     _datatypes = {}
 
     @classmethod
-    def register(cls, code, attributes, mode=MODE_MERGE):
+    def register(cls, code, config, mode=MODE_MERGE):
         # TODO: validate attributes
         """
         Register a date type.
@@ -29,9 +29,12 @@ class DataTypeFactory:
         :param str mode:
         """
         logger.info("TODO: validate attributes")
+        config.get('attributes'), config.get('generic_attribute_id')
+        attributes = config.get('attributes', {})
 
         if code in cls._datatypes:
             datatype = cls._datatypes[code]
+            datatype.generic_attribute_id = config.get('generic_attribute_id', datatype.generic_attribute_id)
 
             if mode == cls.MODE_MERGE:
                 for attribute_code, attribute_config in attributes.items():
@@ -42,7 +45,7 @@ class DataTypeFactory:
             else:
                 datatype.attributes = attributes
         else:
-            datatype = DataType(code, attributes)
+            datatype = DataType(code, attributes, config.get('generic_attribute_id', 'id'))
 
         cls._datatypes[code] = datatype
 
@@ -60,16 +63,18 @@ class DataTypeFactory:
 class DataType:
     """DataType class"""
 
-    def __init__(self, code, attributes, verbose_name=''):
+    def __init__(self, code, attributes, generic_attribute_id, verbose_name=''):
         """
         Init DataType
 
         :param str code:
         :param dict attributes:
+        :param str generic_attribute_id:
         :param str verbose_name:
         """
         self.code = code
         self.attributes = attributes
+        self.generic_attribute_id = generic_attribute_id
         self.verbose_name = verbose_name if verbose_name else code.replace('_', '').title()
 
     def is_valid_attribute(self, code):

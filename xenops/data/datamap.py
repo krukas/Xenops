@@ -6,6 +6,7 @@ xenops.data.datamap
 :license: GPLv3
 """
 import logging
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 class DataMapObject:
     """DataMapObject for converting raw service data to datatype data"""
 
-    def __init__(self, datatype, mapping, enhancers, data):
+    def __init__(self, connector, datatype, enhancers, data):
         """
         Init DataMapObject
 
@@ -22,27 +23,74 @@ class DataMapObject:
         :param list enhancers:
         :param dict data:
         """
+        self.connector = connector
         self.datatype = datatype
-        self.mapping = mapping if mapping else {}
+        self.mapping = connector.get_mapping(datatype)
         self.enhancers = enhancers if enhancers else []
         self.data = data if data else {}
         self.cached_mapping_data = {}
+        self.local_id = None
+        self.object_ids = {}
+        """Object_ids hold object id by connector code"""
 
         for enhancer in self.enhancers:
             enhancer.source_object = self
 
-    def get_object_id(self, connector_code=None):
-        """
-        Get current connector object id or object id for given connector_code
+    @property
+    def datatype_code(self):
+        """Datatype code"""
+        return self.datatype.code
 
-        :param str connector_code:
+    def get_object_id(self, connector=None):
+        """
+        Get current connector object id or object id for given connector
+
+        :param connector:
         :return str:
         """
-        # TODO: get current object id or id for connector_code
-        # if connector_code and no id try to get id by servicetype.get call.
+        if not connector:
+            connector = self.connector
 
-        # TODO: Check if object_id exists in DB and has same local_id, if not update local_id
-        pass
+        # check for cached object_id
+        if connector.code in self.object_ids:
+            return self.object_ids[connector.code]
+
+        # Try to get object id from current data
+        service_type = connector.service.types.get(self.datatype.code)
+        if self.connector.code == connector.code and service_type and service_type.id_converter:
+            try:
+                object_id = service_type.id_converter.import_attribute(self.data)
+            except KeyError:
+                object_id = None
+
+        # Try to get object id by using generic_id
+        if not object_id:
+            logger.debug('Try getting object id by generic_id')
+            try:
+                data = connector.get(self.datatype, None, self.get_generic_id())
+                object_id = service_type.id_converter.import_attribute(data.data)
+            except Exception:
+                pass
+
+        if not object_id:
+            return None
+
+        self.object_ids[connector.code] = object_id
+
+        # TODO: get local_id by object_id
+        local_id = None
+
+        if not local_id:
+            local_id = uuid.uuid4().hex
+            # TODO: Save local_id/object_id
+            pass
+        elif self.local_id != local_id:
+            # TODO: Update local_ids in all connectors to same id
+            pass
+
+        self.local_id = local_id
+
+        return object_id
 
     def get_generic_id(self):
         """
@@ -50,8 +98,10 @@ class DataMapObject:
 
         :return str:
         """
-        # TODO: Return generic attribute value set on datatype
-        pass
+        try:
+            return self.mapping[self.datatype.generic_attribute_id].import_attribute(self.data)
+        except KeyError:
+            return None
 
     def get_local_id(self):
         """
@@ -59,8 +109,10 @@ class DataMapObject:
 
         :return str:
         """
-        # TODO return random guid id used to map object_id's from different connecters together
-        pass
+        if not self.local_id:
+            self.get_object_id()
+
+        return self.local_id
 
     def get(self, key, default=None, raise_keyerror=False):
         """

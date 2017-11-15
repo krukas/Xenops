@@ -25,8 +25,8 @@ class Application:
         self.connectors = {}
 
         # Load all default product types
-        for code, attributes in default_types.items():
-            DataTypeFactory.register(code, attributes)
+        for code, config in default_types.items():
+            DataTypeFactory.register(code, config)
 
         self.load_services()
 
@@ -55,7 +55,7 @@ class Application:
         """Load project types"""
         for code, config in settings.get('TYPES', {}).items():
             # TODO add validation
-            DataTypeFactory.register(code, config['attributes'], config.get('type', 'merge'))
+            DataTypeFactory.register(code, config, config.get('type', 'merge'))
 
     def load_project_connectors(self):
         """Load project connectors"""

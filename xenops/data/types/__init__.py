@@ -8,5 +8,8 @@ xenops.data.types
 from .product import product
 
 default_types = {
-    'product': product,
+    'product': {
+        'generic_attribute_id': 'sku',
+        'attributes': product,
+    },
 }
