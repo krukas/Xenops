@@ -3,9 +3,32 @@ from datetime import datetime
 
 from xenops.data import DataMapObject
 from xenops.data.converter import DateTime
+from xenops.connector import Connector
+from xenops.data import DataTypeFactory
 
 
 class TestConverterMapper(unittest.TestCase):
+
+    def setUp(self):
+        DataTypeFactory.register('product', {
+            'attributes': {
+                'date': {
+                    'type': 'datetime',
+                }
+            }
+        })
+
+        self.connector = Connector(
+            app=None,
+            code='test',
+            service=None,
+            verbose_name=None,
+            mapping={
+                'product': {
+                    'date': DateTime('date', 'date')
+                }
+            },
+        )
 
     def test_import_format(self):
         converter = DateTime('date', 'date', '%Y-%m-%d %H:%M:%S')
@@ -26,10 +49,8 @@ class TestConverterMapper(unittest.TestCase):
 
     def test_export_format(self):
         data = DataMapObject(
-            None,
-            {
-                'date': DateTime('date', 'date'),
-            },
+            self.connector,
+            DataTypeFactory.get('product'),
             [],
             {
                 'date': '2015-03-12 10:10:10',
@@ -46,10 +67,8 @@ class TestConverterMapper(unittest.TestCase):
 
     def test_export_none(self):
         data = DataMapObject(
-            None,
-            {
-                'date': DateTime('date', 'date'),
-            },
+            self.connector,
+            DataTypeFactory.get('product'),
             [],
             {
                 'date': '',

@@ -2,9 +2,41 @@ import unittest
 
 from xenops.data import DataMapObject
 from xenops.data.converter import Attribute
+from xenops.connector import Connector
+from xenops.data import DataTypeFactory
 
 
 class TestConverter(unittest.TestCase):
+
+    def setUp(self):
+        DataTypeFactory.register('product', {
+            'attributes': {
+                'date': {
+                    'sku': 'str',
+                    'qty': 'str',
+                }
+            }
+        })
+
+        self.connector = Connector(
+            app=None,
+            code='test',
+            service=None,
+            verbose_name=None,
+            mapping={
+                'product': {
+                    'sku': Attribute(
+                        attribute='sku',
+                        service_attribute='sku'
+                    ),
+                    'qty': Attribute(
+                        attribute='qty',
+                        service_attribute='qty'
+                    )
+                }
+            },
+        )
+
     def test_attribute(self):
         data = {
             'sku': 'ean-123',
@@ -56,20 +88,9 @@ class TestConverter(unittest.TestCase):
         self.assertEqual(str(att), 'Attribute: {attribute: stock,  service_attribute: stock.level}')
 
     def test_convert_to_mapping(self):
-        from_mapping = {
-            'sku': Attribute(
-                attribute='sku',
-                service_attribute='sku'
-            ),
-            'qty': Attribute(
-                attribute='qty',
-                service_attribute='qty'
-            )
-        }
-
         data = DataMapObject(
-            None,
-            from_mapping,
+            self.connector,
+            DataTypeFactory.get('product'),
             [],
             {
                 'sku': 'ean-123',
