@@ -1,7 +1,7 @@
 import unittest
 
 from xenops.data import DataMapObject
-from xenops.data.converter import Attribute, Mapper
+from xenops.data.converter import Attribute
 
 
 class TestConverter(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestConverter(unittest.TestCase):
             service_attribute='sku'
         )
 
-        self.assertEquals(att.import_attribute(data), 'ean-123')
+        self.assertEqual(att.import_attribute(data), 'ean-123')
 
     def test_attribute_no_data(self):
         att = Attribute(
@@ -37,7 +37,7 @@ class TestConverter(unittest.TestCase):
             service_attribute='stock.level'
         )
 
-        self.assertEquals(att.import_attribute(data), 24)
+        self.assertEqual(att.import_attribute(data), 24)
 
     def test_attribute_keyerror(self):
         att = Attribute(
@@ -53,7 +53,7 @@ class TestConverter(unittest.TestCase):
             service_attribute='stock.level'
         )
 
-        self.assertEquals(str(att), 'Attribute: {attribute: stock,  service_attribute: stock.level}')
+        self.assertEqual(str(att), 'Attribute: {attribute: stock,  service_attribute: stock.level}')
 
     def test_convert_to_mapping(self):
         from_mapping = {
@@ -94,18 +94,3 @@ class TestConverter(unittest.TestCase):
                 'level': 10
             }
         })
-
-    def test_mapper(self):
-        data = {
-            'gender': 2,
-        }
-
-        att = Mapper(
-            attribute='gender',
-            service_attribute='gender',
-            mapping={
-                'f': 2,
-            }
-        )
-
-        self.assertEquals(att.import_attribute(data), 'f')

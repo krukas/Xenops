@@ -177,7 +177,7 @@ class DateTime(BaseConverter):
     https://docs.python.org/3.5/library/datetime.html#strftime-strptime-behavior
     """
 
-    def __init__(self, attribute, service_attribute, date_format):
+    def __init__(self, attribute, service_attribute, date_format='%Y-%m-%d %H:%M:%S'):
         """
         Init DateTime
 
