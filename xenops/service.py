@@ -162,9 +162,11 @@ class ServiceFactory:
             def process_function(*args, **kwargs):
                 pass
 
+            # TODO: Rename to objects
             if 'trigger' in type_config and callable(type_config['trigger']):
                 trigger_function = type_config['trigger']  # noqa F811
 
+            # TODO: Rename to object
             if 'get' in type_config and callable(type_config['get']):
                 get_function = type_config['get']  # noqa F811
 

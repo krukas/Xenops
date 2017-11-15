@@ -114,6 +114,37 @@ class DataMapObject:
         for enhancer in self.enhancers:
             enhancer.source_object = self
 
+    def get_object_id(self, connector_code=None):
+        """
+        Get current connector object id or object id for given connector_code
+
+        :param str connector_code:
+        :return str:
+        """
+        # TODO: get current object id or id for connector_code
+        # if connector_code and no id try to get id by servicetype.get call.
+
+        # TODO: Check if object_id exists in DB and has same local_id, if not update local_id
+        pass
+
+    def get_generic_id(self):
+        """
+        Get generic object id from attribute datatype.generic_attribute_id
+
+        :return str:
+        """
+        # TODO: Return generic attribute value set on datatype
+        pass
+
+    def get_local_id(self):
+        """
+        Get current local UUID or generate a new UUID
+
+        :return str:
+        """
+        # TODO return random guid id used to map object_id's from different connecters together
+        pass
+
     def get(self, key, default=None, raise_keyerror=False):
         """
         Get value from DataMapObject with datatype attribute code
@@ -150,14 +181,18 @@ class DataMapObject:
 
         return default
 
-    def export_to(self, mapping):
+    def export_to(self, mapping, locale=None):
         """
         Convert datatype date to given mapping
 
-        :param mapping:
+        :param dict mapping:
+        :param str locale:
         :return dict:
         """
         data = {}
+
+        # TODO: get object by locale, add locale to GetRequest
+        logger.debug('TODO: export_to locale')
 
         for code, converter in mapping.items():
             try:
