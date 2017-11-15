@@ -37,6 +37,10 @@ class Command:
             level = levels[min(len(levels) - 1, args.verbose)]
             logging.basicConfig(format="%(levelname)-8s: %(message)s", level=level)
 
+        if not hasattr(args, 'func'):
+            parser.print_help()
+            exit()
+
         args.func(args)
 
     def trigger(self, args):
