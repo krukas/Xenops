@@ -64,6 +64,10 @@ class Command:
         else:
             app.trigger(args.trigger, args.connector)
 
+    def validate_service(self, args):
+        """Validate service (for service developers checking there config"""
+        pass
+
 
 if __name__ == '__main__':
     Command(sys.argv)

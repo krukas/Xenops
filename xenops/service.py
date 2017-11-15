@@ -170,14 +170,18 @@ class ServiceFactory:
 
         if not config.get('type'):
             logger.error('Service must have at least one type!')
+            return False
 
+        # TODO: Make validation harder on type errors also return False or Exception
         types = {}
         for type_code, type_config in config.get('type').items():
             datatype = DataTypeFactory.get(type_code)
 
             if not datatype:
-                logger.error('Service ({}) want to register data type ({}) that does not exists!'.format(config['code'],
-                                                                                                         type_code))
+                logger.error('Service ({}) want to register data type ({}) that does not exists!'.format(
+                    config['code'],
+                    type_code)
+                )
                 continue
 
             def trigger_function(*args, **kwargs):
