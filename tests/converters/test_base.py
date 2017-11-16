@@ -20,6 +20,7 @@ class TestConverter(unittest.TestCase):
 
         self.connector = Connector(
             app=None,
+            storage=None,
             code='test',
             service=None,
             verbose_name=None,

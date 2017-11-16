@@ -26,6 +26,8 @@ class Settings:
         if project_settings:
             self._settings = importlib.import_module(project_settings)
             self.IS_PROJECT = True
+            self.BASE_PATH = os.path.dirname(self._settings.__file__)
+            self.BASE_DATA_PATH = os.path.join(self.BASE_PATH, 'data')
 
     def __getattr__(self, name):
         """Get setting value"""

@@ -5,13 +5,16 @@ xenops.connector.connector
 :copyright: 2017 by Maikel Martens
 :license: GPLv3
 """
+import os
 import logging
 import datetime
 
+from xenops.conf import settings
 from xenops.service import TriggerRequest, GetRequest, ProcessRequest
 from xenops.data import DataMapObject, Enhancer
 
 from .configparser import ConnectorConfig
+from .storage import ConnectorStorage
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +28,7 @@ class InvalidCode(Exception):
 class Connector:
     """Connector"""
 
-    def __init__(self, app, code, service, verbose_name=None, service_config=None, mapping=None, triggers=None,
+    def __init__(self, app, storage, code, service, verbose_name=None, service_config=None, mapping=None, triggers=None,
                  enhancers=None, processes=None):
         """
         Init Connector
@@ -41,6 +44,7 @@ class Connector:
         :param list processes:
         """
         self.app = app
+        self.storage = storage
         self.code = code
         self.service = service
         self.verbose_name = verbose_name if verbose_name else code
@@ -59,9 +63,12 @@ class Connector:
         :param dict config:
         :return Connector:
         """
+        config_parsed = ConnectorConfig().parse(config)
+        storage_path = os.path.join(settings.BASE_DATA_PATH, 'connector-{}.sqlite'.format(config_parsed['code']))
         return cls(
             app,
-            **ConnectorConfig().parse(config)
+            ConnectorStorage(storage_path),
+            **config_parsed
         )
 
     def execute_trigger(self, trigger_code):

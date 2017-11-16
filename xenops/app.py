@@ -5,6 +5,7 @@ xenops.app
 :copyright: 2017 by Maikel Martens
 :license: GPLv3
 """
+import os
 import logging
 from pkg_resources import iter_entry_points
 
@@ -23,6 +24,11 @@ class Application:
     def __init__(self):
         """Load all services and project settings"""
         self.connectors = {}
+
+        try:
+            os.mkdir(settings.BASE_DATA_PATH)
+        except OSError:
+            pass
 
         # Load all default product types
         for code, config in default_types.items():
