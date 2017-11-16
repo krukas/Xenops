@@ -86,10 +86,13 @@ class Connector:
         process_configs = self.get_processes_config(service_type.datatype.code)
 
         # TODO: Lock trigger if trigger is already running
+
+        start_time = datetime.datetime.now()
+
         trigger_request = TriggerRequest(
             service_config={},
             trigger_config={},
-            last_run=datetime.datetime.now()  # TODO: get value from DB
+            last_run=self.storage.get_last_run(trigger_code)
         )
         for object_data in service_type.trigger(trigger_request):
             enhancers = []
@@ -130,6 +133,10 @@ class Connector:
                         service_type.datatype.code,
                         str(e)
                     ))
+
+                # TODO: update last run with object updated_at
+
+        self.storage.set_last_run(trigger_code, start_time)
 
     def get(self, datatype, object_id, generic_id=None):
         """

@@ -30,8 +30,8 @@ class TestConverter(unittest.TestCase):
         self.storage.set_object_id(self.datatype, 'local_id-2', 'object_id-2')
         self.storage.set_object_id(self.datatype, 'local_id-3', 'object_id-3')
 
-        self.storage.set_last_run_time('test_trigger_1', self.trigger1_date)
-        self.storage.set_last_run_time('test_trigger_2', self.trigger2_date)
+        self.storage.set_last_run('test_trigger_1', self.trigger1_date)
+        self.storage.set_last_run('test_trigger_2', self.trigger2_date)
 
     def tearDown(self):
         logging.disable(logging.NOTSET)

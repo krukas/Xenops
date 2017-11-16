@@ -121,7 +121,7 @@ class ConnectorStorage:
 
         return self.execute_query(query, [new_id, old_id])
 
-    def set_last_run_time(self, trigger_code, date):
+    def set_last_run(self, trigger_code, date):
         """
         Set last run time
 
