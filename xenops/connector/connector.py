@@ -119,14 +119,14 @@ class Connector:
                     service_type.datatype.code,
                     data
                 ))
+
                 try:
-                    object_id = process_config['connector'].service.types.get(service_type.datatype.code).process(
+                    process_config['connector'].service.types.get(service_type.datatype.code).process(
                         ProcessRequest(
                             connector=process_config['connector'],
                             process_config={},
                             data_objects=[data]
                         ))
-                    logger.info(' - Object id for ({}) is {}'.format(data, object_id))
                 except Exception as e:
                     logger.error('Error processing data for process ({}:{}): {}'.format(
                         process_config['connector'].code,
@@ -135,6 +135,9 @@ class Connector:
                     ))
 
                 # TODO: update last run with object updated_at
+                update_time = data.get_update_at()
+                if update_time and update_time < start_time:
+                    self.storage.set_last_run(trigger_code, update_time)
 
         self.storage.set_last_run(trigger_code, start_time)
 

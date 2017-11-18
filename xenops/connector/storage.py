@@ -42,7 +42,7 @@ class ConnectorStorage:
             type_code varchar NOT NULL,
             local_id varchar NOT NULL,
             object_id varchar NOT NULL,
-            PRIMARY KEY (type_code, local_id)
+            PRIMARY KEY (type_code, local_id, object_id)
         );
         """
 

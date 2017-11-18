@@ -34,12 +34,23 @@ class DataMapObject:
         """Object_ids hold object id by connector code"""
 
         for enhancer in self.enhancers:
-            enhancer.source_object = self
+            pass
 
-    @property
-    def datatype_code(self):
-        """Datatype code"""
-        return self.datatype.code
+    def set_object_id(self, object_id):
+        """
+        Set object id
+
+        :param str object_id:
+        :return:
+        """
+        if not self.local_id:
+            self.local_id = self.connector.storage.get_local_id(self.datatype, object_id)
+            if not self.local_id:
+                self.local_id = uuid.uuid4().hex
+
+        self.object_ids[self.connector.code] = object_id
+
+        self.connector.storage.set_object_id(self.datatype, self.local_id, object_id)
 
     def get_object_id(self, connector=None):
         """
@@ -55,13 +66,20 @@ class DataMapObject:
         if connector.code in self.object_ids:
             return self.object_ids[connector.code]
 
+        object_id = None
+        local_id = None
+
         # Try to get object id from current data
         service_type = connector.service.types.get(self.datatype.code)
         if self.connector.code == connector.code and service_type and service_type.id_converter:
             try:
                 object_id = service_type.id_converter.import_attribute(self.data)
+                local_id = self.local_id
             except KeyError:
-                object_id = None
+                pass
+        elif self.local_id:
+            object_id = connector.storage.get_object_id(self.datatype, self. local_id)
+            local_id = self.local_id
 
         # Try to get object id by using generic_id
         if not object_id:
@@ -77,20 +95,22 @@ class DataMapObject:
 
         self.object_ids[connector.code] = object_id
 
-        # TODO: get local_id by object_id
-        local_id = None
-
         if not local_id:
-            local_id = uuid.uuid4().hex
-            # TODO: Save local_id/object_id
-            pass
+            local_id = connector.storage.get_local_id(self.datatype, object_id)
+            if not local_id:
+                local_id = uuid.uuid4().hex
         elif self.local_id != local_id:
-            # TODO: Update local_ids in all connectors to same id
-            pass
+            for conn in connector.app.connectors.values():
+                conn.storage.update_local_id(old_id=local_id, new_id=self.local_id)
 
         self.local_id = local_id
+        connector.storage.set_object_id(self.datatype, local_id, object_id)
 
         return object_id
+
+    def datatype_code(self):
+        """Datatype code"""
+        return self.datatype.code
 
     def get_generic_id(self):
         """
@@ -113,6 +133,20 @@ class DataMapObject:
             self.get_object_id()
 
         return self.local_id
+
+    def get_update_at(self):
+        """
+        Get update at of object
+
+        :return:
+        """
+        service_type = self.connector.service.types.get(self.datatype.code)
+        if service_type and service_type.update_converter:
+            try:
+                return service_type.update_converter.import_attribute(self.data)
+            except KeyError:
+                return None
+        return None
 
     def get(self, key, default=None, raise_keyerror=False):
         """
